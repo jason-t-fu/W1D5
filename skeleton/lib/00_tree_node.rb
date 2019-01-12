@@ -20,18 +20,42 @@ class PolyTreeNode
         @value
     end
 
-    def parent=(node)
-        # @parent = node #1.parent => nil
-        
-        #byebug
-        prev_parent = parent #nil
-        @parent = node #1
-        if !parent.nil? && !parent.children.include?(self)
-            parent.children << self
+    def parent=(node)        
+        parent.children.delete(self) unless parent.nil?
+        @parent = node
+        parent.children << self unless parent.nil? || parent.children.include?(self)
+    end
+
+    def add_child(child_node)
+        child_node.parent = self
+    end
+
+    def remove_child(child_node)
+        raise "Node is not a child." unless children.include?(child_node)
+        child_node.parent = nil
+        children.delete(child_node)
+    end
+
+    def dfs(target_value)
+        #Base case
+        return self if self.value == target_value
+        #Iterative
+        self.children.each do |child|
+            return_node = child.dfs(target_value)
+            return return_node if !return_node.nil?
         end
-        if !prev_parent.nil? && prev_parent != parent
-            prev_parent.children.delete(self)
+        nil
+    end
+
+    def bfs(target_value)
+        queue = []
+        queue << self
+        until queue.empty?
+            current_node = queue.shift
+            return current_node if current_node.value == target_value
+            queue += current_node.children
         end
+        nil
     end
 
 end
